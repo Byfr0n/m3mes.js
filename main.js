@@ -6,11 +6,17 @@ var dimBg = true;
 var doubletap = false;
 var hideshots = false;
 var autopeek = false;
-var ver = "1.1"
+var customantiaim = false;
+var standing = 0;
+var standingPitch = 0;
+var inair = 0;
+var inairPitch = 0;
+var freestanding = 0;
+var freestandingPitch = 0;
+var ver = "1.2"
 var screen_size = Global.GetScreenSize();
 var screen_width = screen_size[0]; // Correct: screen_size[0] is the width
 var screen_height = screen_size[1]; // Correct: screen_size[1] is the height
-
 
 UI.AddLabel("m3mes / github.com/Byfr0n/m3mes.js");
 UI.AddLabel("MISC.");
@@ -20,23 +26,61 @@ UI.AddCheckbox("Keybind list");
 UI.AddColorPicker("Accent color");
 UI.AddCheckbox("Enable clantag");
 UI.AddCheckbox("Dim background");
+UI.AddCheckbox("Enable Anti-Aim");
 UI.AddLabel("ANTI-AIM");
-UI.AddMultiDropdown( "Standing", [ "Random", "Offset jitter", "3-Way", "Spin" ] );
-UI.AddMultiDropdown( "Standing pitch", [ "Random", "Up down up down", "Resolver breaker", "Down", "Up", "Defensive" ] );
-UI.AddMultiDropdown( "In air", [ "Random", "Offset jitter", "3-Way", "Spin" ] );
-UI.AddMultiDropdown( "In air pitch", [ "Random", "Up down up down", "Resolver breaker", "Down", "Up" ] );
-UI.AddMultiDropdown( "Freestanding", [ "Random", "Offset jitter", "3-Way", "Spin" ] );
-UI.AddMultiDropdown( "Freestanding pitch", [ "Random", "Up down up down", "Resolver breaker", "Down", "Up", "Defensive" ] );
+UI.AddSliderInt( "Spinbot power", 1, 100 );
+UI.AddSliderInt( "Defensive flick time", 3, 20 );
+UI.AddSliderInt( "Jitter left", -180, 180 );
+UI.AddSliderInt( "Jitter right", -180, 180 );
+UI.AddDropdown( "Standing", [ "Random", "Offset jitter", "3-Way", "Spin" ] );
+UI.AddDropdown( "Standing pitch", [ "Random", "Up down up down", "Resolver breaker", "Down", "Up", "Defensive" ] );
+UI.AddDropdown( "In air", [ "Random", "Offset jitter", "3-Way", "Spin" ] );
+UI.AddDropdown( "In air pitch", [ "Random", "Up down up down", "Resolver breaker", "Down", "Up" ] );
+UI.AddDropdown( "Freestanding", [ "Random", "Offset jitter", "3-Way", "Spin" ] );
+UI.AddDropdown( "Freestanding pitch", [ "Random", "Up down up down", "Resolver breaker", "Down", "Up", "Defensive" ] );
 UI.SetValue("Misc","PERFORMENCE & INFORMATION", "Information", "Restrictions",0);
 
 function update() {
     watermark = UI.GetValue("Script items", "Enable watermark");
     keybinds = UI.GetValue("Script items", "Keybind list");
-    //UI.SetEnabled("Script items", "Watermark accent color", watermark);
-    UI.SetEnabled("Script items", "Accent color", watermark);
-    clantag = UI.GetValue("Script items", "Enable clantag");
+    standing = UI.GetValue("Script items", "Standing");
+    standingPitch = UI.GetValue("Script items", "Standing pitch");
+    inair = UI.GetValue("Script items", "In air");
+    inairPitch = UI.GetValue("Script items", "In air pitch");
+    freestanding = UI.GetValue("Script items", "Freestanding");
+    freestandingPitch = UI.GetValue("Script items", "Freestanding pitch");
+    customantiaim = UI.GetValue("Script items", "Enable Anti-Aim");
+
+    // Enable/Disable pitch options based on the Anti-Aim state
+    UI.SetEnabled("Script items", "Standing", customantiaim);
+    UI.SetEnabled("Script items", "Standing pitch", customantiaim);
+    UI.SetEnabled("Script items", "In air", customantiaim);
+    UI.SetEnabled("Script items", "In air pitch", customantiaim);
+    UI.SetEnabled("Script items", "Freestanding", customantiaim);
+    UI.SetEnabled("Script items", "Freestanding pitch", customantiaim);
+    UI.SetEnabled("Script items", "ANTI-AIM", customantiaim);
+
+    // Enable "Defensive flick time" if any of the pitch options is set to "Defensive"
+    if (standingPitch === 5 || inairPitch === 5 || freestandingPitch === 5) {
+        UI.SetEnabled("Script items", "Defensive flick time", true);
+    } else {
+        UI.SetEnabled("Script items", "Defensive flick time", false);
+    }
+
     dimBg = UI.GetValue("Script items", "Dim background");
+    clantag = UI.GetValue("Script items", "Enable clantag");
+
+    // Enable jitter and spinbot controls based on standing, in air, or freestanding states
+    if (standing === 1 || inair || freestanding) {
+        UI.SetEnabled("Script items", "Jitter left", true);
+        UI.SetEnabled("Script items", "Jitter right", true);
+    }
+
+    if (standing === 3 || inair || freestanding) {
+        UI.SetEnabled("Script items", "Spinbot power", true);
+    }
 }
+
 
 function darkenColor(color) {
     var r = Math.max(color[0] - 50, 0);
@@ -93,10 +137,132 @@ function main() {
     }
 }
 
-function antiaim()
-{
-    //todo add shit
-}
+function antiaim() {
+        // Check if anti-zaim! is enabled
+        if (!customantiaim) {
+            return;
+        }
+    
+        var localPlayer = Entity.GetLocalPlayer();
+    
+        if (!localPlayer) {
+            return;
+        }
+        
+        var defensiveTime = 0;
+
+        var flags = Entity.GetProp(localPlayer, "CBasePlayer", "m_fFlags");
+    
+        var onGround = (flags & 1) !== 0; // FL_ONGROUND is bit 1
+    
+        if (onGround) {
+            if (standing === 0) {
+                // Random
+                // Implement random Anti-Aim behavior for standing
+            } else if (standing === 1) {
+                // Offset jitter
+                // Implement offset jitter Anti-Aim behavior for standing
+            } else if (standing === 2) {
+                // 3-Way
+                // Implement 3-way Anti-Aim behavior for standing
+            } else if (standing === 3) {
+                // Spin
+                // Implement spin Anti-Aim behavior for standing
+            }
+    
+            // Handle Standing Pitch Anti-Aim state
+            if (standingPitch === 0) {
+                // Random pitch
+                // Implement random pitch behavior for standing
+            } else if (standingPitch === 1) {
+                // Up down up down
+                // Implement up down pitch behavior for standing
+            } else if (standingPitch === 2) {
+                // Resolver breaker
+                // Implement resolver breaker pitch behavior for standing
+            } else if (standingPitch === 3) {
+                // Down
+                // Implement down pitch behavior for standing
+            } else if (standingPitch === 4) {
+                // Up
+                // Implement up pitch behavior for standing
+            } else if (standingPitch === 5) {
+                // Defensive
+                // Implement defensive pitch behavior for standing
+            }
+        } else {
+            // Handle In-Air Anti-Aim state
+            if (inair === 0) {
+                // Random
+                // Implement random Anti-Aim behavior for in air
+            } else if (inair === 1) {
+                // Offset jitter
+                // Implement offset jitter Anti-Aim behavior for in air
+            } else if (inair === 2) {
+                // 3-Way
+                // Implement 3-way Anti-Aim behavior for in air
+            } else if (inair === 3) {
+                // Spin
+                // Implement spin Anti-Aim behavior for in air
+            }
+    
+            // Handle In-Air Pitch Anti-Aim state
+            if (inairPitch === 0) {
+                // Random pitch
+                // Implement random pitch behavior for in air
+            } else if (inairPitch === 1) {
+                // Up down up down
+                // Implement up down pitch behavior for in air
+            } else if (inairPitch === 2) {
+                // Resolver breaker
+                // Implement resolver breaker pitch behavior for in air
+            } else if (inairPitch === 3) {
+                // Down
+                // Implement down pitch behavior for in air
+            } else if (inairPitch === 4) {
+                // Up
+                // Implement up pitch behavior for in air
+            }
+        }
+    
+        // Handle Freestanding Anti-Aim state
+        if (freestanding !== -1) { // Example condition, adjust as necessary
+            if (freestanding === 0) {
+                // Random
+                // Implement random Anti-Aim behavior for freestanding
+            } else if (freestanding === 1) {
+                // Offset jitter
+                // Implement offset jitter Anti-Aim behavior for freestanding
+            } else if (freestanding === 2) {
+                // 3-Way
+                // Implement 3-way Anti-Aim behavior for freestanding
+            } else if (freestanding === 3) {
+                // Spin
+                // Implement spin Anti-Aim behavior for freestanding
+            }
+    
+            // Handle Freestanding Pitch Anti-Aim state
+            if (freestandingPitch === 0) {
+                // Random pitch
+                // Implement random pitch behavior for freestanding
+            } else if (freestandingPitch === 1) {
+                // Up down up down
+                // Implement up down pitch behavior for freestanding
+            } else if (freestandingPitch === 2) {
+                // Resolver breaker
+                // Implement resolver breaker pitch behavior for freestanding
+            } else if (freestandingPitch === 3) {
+                // Down
+                // Implement down pitch behavior for freestanding
+            } else if (freestandingPitch === 4) {
+                // Up
+                // Implement up pitch behavior for freestanding
+            } else if (freestandingPitch === 5) {
+                // Defensive
+                // Implement defensive pitch behavior for freestanding
+            }
+        }
+    }
 
 function updateMove() {
     doubletap = UI.IsHotkeyActive( "Rage", "GENERAL", "Exploits", "Doubletap" );
